@@ -2,6 +2,16 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import json
+from PIL import Image, ImageFont, ImageDraw
+
+def getCharacterImage(character):
+  font_name = "resources/SourceHanSerif-VF.ttf.ttc"
+  font_size = 50 # px
+  # Create Font using PIL
+  font = ImageFont.truetype(font_name, font_size)
+  img = Image.Image()._new(font.getmask(character))
+  return np.asarray(img)
 
 def initiate():
   global sift
@@ -11,17 +21,30 @@ def initiate():
   search_params = dict(checks=50)
   global flann
   flann = cv2.FlannBasedMatcher(index_params, search_params)
+  with open('resources/dictionary.txt', encoding="utf8") as f:
+    global json_data
+    string = f.read() 
+    string = string.replace('\n', '')
+    string = string.replace('}{', '},{')
+    string = "[" + string + "]"
+    json_data = json.loads(string)
 
 def identify(image):
   gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
   thresh, binary = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
   kp, des = sift.detectAndCompute(binary, None)
   bestMatch = 0
-  bestFile = ''
-  for filename in os.scandir('TestData'):
-    img = cv2.imread(filename.path, cv2.IMREAD_GRAYSCALE)
-    thresh, binaryDict = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-    kpDict, desDict = sift.detectAndCompute(binaryDict, None)
+  bestChar = ''
+  counter = 0
+  for entry in json_data:
+    counter += 1
+    if counter == 2000:
+      break
+    img = getCharacterImage(entry['character'])
+    kpDict, desDict = sift.detectAndCompute(img, None)
+    if desDict is None or len(desDict) < 2:
+      print('no feature matching for', entry['character'])
+      continue
     matches = flann.knnMatch(des, desDict, k=2)
     good_matches = []
     for m, n in matches:
@@ -32,21 +55,17 @@ def identify(image):
 
     if(similarity > bestMatch):
       bestMatch = similarity
-      bestFile = filename
-    # Compute the similarity score
+      bestChar = entry['character']
     
   print('Similarity score:', bestMatch)
-  return bestFile
+  return bestChar
   
 
 
 if __name__ == '__main__':
-  image = cv2.imread('pour2.png')
+  image = cv2.imread('testData/Make_Complete.png')
   initiate()
   filename = identify(image)
   print('Best match:', filename)
-   
-# build database of characters descriptors to compare with
-# database could be just a txt file 
 
 
