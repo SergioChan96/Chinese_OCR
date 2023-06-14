@@ -1,5 +1,6 @@
 # Steps for Project
 1. Convert image to grayscale
+histogramm normalisierung
 2. Bounding box for individual characters
 3. Cut individual characters out
 4. Build dictionary of characters

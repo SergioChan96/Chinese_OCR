@@ -63,7 +63,7 @@ def identify(image):
 
 
 if __name__ == '__main__':
-  image = cv2.imread('testData/Make_Complete.png')
+  image = cv2.imread(os.path.join(os.getcwd(), 'TestData/Make_Complete.png'))
   initiate()
   filename = identify(image)
   print('Best match:', filename)
