@@ -93,10 +93,6 @@ def cross_correlation(image1, image2):
 
   
 if __name__ == '__main__':
-<<<<<<< Updated upstream
-  image = cv2.imread(os.path.join(os.getcwd(), 'TestData/Make_Complete.png'))
-=======
->>>>>>> Stashed changes
   initiate()
   for images in os.scandir('testData/'):
     t0 = time.time()
