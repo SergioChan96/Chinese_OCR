@@ -91,6 +91,10 @@ def cross_correlation(image1, image2):
   mean2 = np.mean(image2)
   return np.sum((image1 - mean1) * (image2 - mean2)) / (std_div1 * std_div2)
 
+def mainComparison(image):
+  loadFont(image.shape[0])
+  filename = identify(image)
+  print('Best match:', filename)
   
 if __name__ == '__main__':
   initiate()
